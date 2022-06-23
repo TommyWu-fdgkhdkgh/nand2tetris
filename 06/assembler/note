@@ -1,0 +1,2 @@
+variable 的個數由 symbol table 紀錄
+行數由 parser 紀錄

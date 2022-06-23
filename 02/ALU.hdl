@@ -1,0 +1,97 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x and y inputs
+// and operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2's complement addition
+// if (f == 0)  set out = x & y  // bitwise and
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+	Not16(in=x[0..15], out=Not16x);
+	And16(a=x, b=Not16x, out=xAndNot16x); 
+	Mux16(a=x, b=xAndNot16x, sel=zx, out=Mux1);
+	
+	Not16(in=Mux1, out=NotMux1);
+	Mux16(a=Mux1, b=NotMux1, sel=nx, out=Mux2);
+	
+	Not16(in=y, out=Not16y);
+	And16(a=y, b=Not16y, out=yAndNot16y); 
+	Mux16(a=y, b=yAndNot16y, sel=zy, out=Mux3);
+	
+	Not16(in=Mux3, out=NotMux3);
+	Mux16(a=Mux3, b=NotMux3, sel=ny, out=Mux4);
+	
+	And16(a=Mux2, b=Mux4, out=Mux2And16Mux4);
+	Add16(a=Mux2, b=Mux4, out=Mux2Add16Mux4);
+	Mux16(a=Mux2And16Mux4, b=Mux2Add16Mux4, sel=f, out=preOut);
+	
+	Not16(in=preOut, out=NotpreOut);
+	Mux16(a=preOut, b=NotpreOut, sel=no, out[15]=ng, out=out, out[0]=bit0,
+	                                                          out[1]=bit1,
+									                          out[2]=bit2,
+															  out[3]=bit3,
+															  out[4]=bit4,
+															  out[5]=bit5,
+															  out[6]=bit6,
+															  out[7]=bit7,
+															  out[8]=bit8,
+															  out[9]=bit9,
+															  out[10]=bit10,
+															  out[11]=bit11,
+															  out[12]=bit12,
+															  out[13]=bit13,
+															  out[14]=bit14,
+															  out[15]=bit15);
+	
+	Or(a=bit0 ,b=bit1, out=or1);
+	Or(a=or1 ,b=bit2, out=or2);
+	Or(a=or2 ,b=bit3, out=or3);
+	Or(a=or3 ,b=bit4, out=or4);
+	Or(a=or4 ,b=bit5, out=or5);
+	Or(a=or5 ,b=bit6, out=or6);
+	Or(a=or6 ,b=bit7, out=or7);
+	Or(a=or7 ,b=bit8, out=or8);
+	Or(a=or8 ,b=bit9, out=or9);
+	Or(a=or9 ,b=bit10, out=or10);
+	Or(a=or10 ,b=bit11, out=or11);
+	Or(a=or11 ,b=bit12, out=or12);
+	Or(a=or12 ,b=bit13, out=or13);
+	Or(a=or13 ,b=bit14, out=or14);
+	Or(a=or14 ,b=bit15, out=or15);
+	Not(in=or15, out=zr);
+}

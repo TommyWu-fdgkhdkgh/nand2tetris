@@ -1,0 +1,46 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/FullAdder.hdl
+
+/**
+ * Computes the sum of three bits.
+ */
+
+CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+    // Put you code here:
+	Not(in=a, out=Nota);
+	Not(in=b, out=Notb);
+	Not(in=c, out=Notc);
+	
+	And(a=Nota, b=Notb, out=NotaAndNotb);
+	And(a=NotaAndNotb, b=c, out=NotaAndNotbAndc);
+	
+	And(a=Nota, b=b, out=NotaAndb);
+	And(a=NotaAndb, b=Notc, out=NotaAndbAndNotc);
+	
+	And(a=a, b=Notb, out=aAndNotb);
+	And(a=aAndNotb, b=Notc, out=aAndNotbAndNotc);
+	
+	And(a=a, b=b, out=aAndb);
+	And(a=aAndb, b=c, out=aAndbAndc);
+	
+	Or(a=NotaAndNotbAndc, b=NotaAndbAndNotc, out=NotaAndNotbAndcOrNotaAndbAndNotc);
+	Or(a=aAndNotbAndNotc, b=aAndbAndc, out=aAndNotbAndNotcOraAndbAndc);
+	
+	Or(a=NotaAndNotbAndcOrNotaAndbAndNotc, b=aAndNotbAndNotcOraAndbAndc, out=sum);
+	
+	And(a=NotaAndb, b=c, out=NotaAndbAndc);
+	And(a=aAndNotb, b=c, out=aAndNotbAndc);
+	And(a=aAndb, b=Notc, out=aAndbAndNotc);
+	
+	Or(a=NotaAndbAndc, b=aAndNotbAndc, out=NotaAndbAndcOraAndNotbAndc);
+	Or(a=aAndbAndNotc, b=aAndbAndc, out=aAndbAndNotcOraAndbAndc);
+	
+	Or(a=NotaAndbAndcOraAndNotbAndc, b=aAndbAndNotcOraAndbAndc, out=carry);
+}
